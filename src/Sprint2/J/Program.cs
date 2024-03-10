@@ -29,10 +29,6 @@ public class Program
                 }
                 Commands(command, number, queue);
             }
-            catch (InvalidOperationException)
-            {
-                writer.WriteLine("None");
-            }
             catch (ArgumentOutOfRangeException)
             {
                 writer.WriteLine("error");
@@ -47,14 +43,11 @@ public class Program
     {
         switch (command)
         {
-            case "push":
-                queue.Push(number);
+            case "put":
+                queue.Put(number);
                 break;
-            case "pop":
-                writer.WriteLine(queue.Pop());
-                break;
-            case "peek":
-                writer.WriteLine(queue.Peek());
+            case "get":
+                writer.WriteLine(queue.Get());
                 break;
             case "size":
                 writer.WriteLine(queue.Size());
@@ -91,50 +84,48 @@ internal class Queue
         return size == 0;
     }
 
-    public void Push(int x)
+    public void Put(int x)
     {
-        tail = new Node<int>(x, null, null);
+        var node = new Node<int>(x, head, tail);
         if (head is null)
         {
-            head = tail;
+            head = node;
+            tail = node;
         }
 
-        tail.Next = head;
-        head.Prev = tail;
-
-        tail.Prev = head.Next;
-        head.Next = tail.Prev;
-        
+        tail.Next = node;
+        head.Prev = node;
+        tail = node;
         size++;
     }
 
-    public int Pop()
+    public int Get()
     {
-        return 0;
-        //if (IsEmpty())
-        //{
-        //    throw new InvalidOperationException();
-        //}
-        //int x = queue[head];
-        //queue[head] = 0;
-        //head = (head + 1) % max_n;
-        //size -= 1;
-        //return x;
+        if (IsEmpty())
+        {
+            throw new ArgumentOutOfRangeException();
+        }
+        var x = head.Value;
+        if (size > 1)
+        {
+            var prev = head.Prev;
+            var next = head.Next;
+            prev.Next = next;
+            next.Prev = prev;
+            head = next;
+        }
+        if (size == 1)
+        {
+            head = null;
+            tail = null;
+        }
+        size --;
+        return x;
     }
 
     public int Size()
     {
         return size;
-    }
-
-    public int Peek()
-    {
-        return 0;
-        //if (IsEmpty())
-        //{
-        //    throw new InvalidOperationException();
-        //}
-        //return queue[head];
     }
 }
 
